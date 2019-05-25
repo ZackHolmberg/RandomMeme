@@ -1,27 +1,32 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Random Meme</title>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- Bootstrap -->
-    <link href="style.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
-    <link rel="stylesheet" href="libraries/bootstrap/css/bootstrap.min.css">
-    <script src="libraries/jquery.min.js"></script>
+  <title>Random Meme</title>
 
-  </head>
-  <div class="container-fluid main">
+  <!-- Bootstrap -->
+  <link href="style.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
+  <link rel="stylesheet" href="libraries/bootstrap/css/bootstrap.min.css">
+  <script src="libraries/jquery.min.js"></script>
 
-        <h3>Your Random Meme:</h3>
-        <div id="images">
-        </div>
-        <p id = "text">Test</p>
-        <script src="popup.js"></script>
+</head>
+<div class="container-fluid main">
+
+  <h3>Your Random Meme:</h3>
+  <img id="my_image" src="images/loading.gif" />
+  <!-- <p id = "text">Test</p> -->
+  <div style="text-align:center; margin-bottom: 10px;">
+    <button id="myButton" class="button" style="vertical-align:middle"><span>Next Meme </span></button>
+  </div>
+</div>
+<script src="popup.js"></script>
 
 
-   </div>
+</div>
+
 </html>
