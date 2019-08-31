@@ -39,13 +39,13 @@ img {
       }
 
 
-#myImg {
+#my_image {
   border-radius: 5px;
   cursor: pointer;
   transition: 0.3s;
 }
 
-#myImg:hover {opacity: 0.7;}
+#my_image:hover {opacity: 0.7;}
 
 /* The Modal (background) */
 .modal {
@@ -66,8 +66,11 @@ img {
 .modal-content {
   margin: auto;
   display: block;
-  width: 80%;
-  max-width: 700px;
+  max-height: 70vh;
+  max-width: 600px;
+  margin-top: -20px;
+
+
 }
 
 /* Caption of Modal Image */
@@ -75,11 +78,12 @@ img {
   margin: auto;
   display: block;
   width: 80%;
-  max-width: 700px;
+  max-width: 600px;
   text-align: center;
   color: #ccc;
   padding: 10px 0;
   height: 150px;
+  font-size: 30px;
 }
 
 /* Add Animation */
@@ -101,18 +105,18 @@ img {
 }
 
 /* The Close Button */
-.close {
+.myclose {
   position: absolute;
   top: 15px;
   right: 35px;
   color: #f1f1f1;
-  font-size: 40px;
+  font-size: 100px;
   font-weight: bold;
   transition: 0.3s;
 }
 
-.close:hover,
-.close:focus {
+.myclose:hover,
+.myclose:focus {
   color: #bbb;
   text-decoration: none;
   cursor: pointer;
@@ -128,16 +132,21 @@ img {
 .button {
   display: inline-block;
   border-radius: 25px;
-  background-color: rgba(20, 20, 20, 0.2);
+  background-color: rgba(104, 104, 104, 0.363);
   border: none;
   color: #FFFFFF;
   text-align: center;
   font-size: 16px;
   padding: 10px;
   width: 200px;
-  transition: all 0.5s;
+  transition:  0.25s ease-out;
   cursor: pointer;
-  margin: 5px;
+  margin-top: 30px;
+}
+
+.button:hover{
+  background-color: rgba(133, 133, 133, 0.363);
+
 }
 
 .button span {
@@ -166,4 +175,10 @@ img {
 }
 
 button:focus {outline:0;}
+
+.next-btn{
+
+  text-align:center; 
+  
+}
 
