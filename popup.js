@@ -2,87 +2,306 @@ $.ajaxSetup({
   async: false
 });
 
+//Google Analytics Stuff
+
+(function() {
+  var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+  ga.src = 'https://ssl.google-analytics.com/ga.js';
+  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+})();
+
+var _gaq = _gaq || [];
+_gaq.push(['_setAccount', 'UA-148351255-1']);
+_gaq.push(['_trackPageview']);
+
+(function() {
+  var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+  ga.src = 'https://ssl.google-analytics.com/ga.js';
+  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+})();
+
+
+//Array the holds all of the possible memes.
 var memes = [];
+
+//Array that holds the default meme subreddits.
+var subreddits = ["dankmemes", "funny", "memes", "dank_meme"];
+
+//Link of pic being displated
+var memeURL;
 
 window.onload = function () {
   getMemes();
-  console.log(memes)
   getMeme();
+  chrome.storage.sync.set({ 'subreddits': subreddits }, function () {
+  });
+  
+  chrome.storage.sync.set({ 'memes': memes });
+  
 }
 
 
 
 function getMeme() {
-  var index = Math.floor(Math.random() * memes.length);
-  console.log("Got the link at index "+index+": " + memes[index].link);
-  console.log("Got the text at index "+index+": " + memes[index].text);
-  $("#my_image").attr("src", memes[index].link);
-  $("#caption").text(memes[index].text);
-  memes.pop(memes[index]);
+
+  if (subreddits.length > 0 && memes[0] != undefined) {
+
+    $("#my_image").attr("src", memes[0].link);
+    memeURL = memes[0].link;
+    $("#caption").text(memes[0].text);
+    memes.splice(0, 1);
+    $("#memesLeft").text(memes.length + " memes left.");
+    chrome.storage.sync.set({ 'memes': memes });
+  }
+  else {
+    $("#my_image").attr("src", "images/noneAvailable.webp");
+    $("#caption").text("No memes avaiable. Either you have browsed all the top memes of your selected subreddits, you have no selected subreddits in the menu, or you are not connected to the internet.");
+  }
 }
 
 function getMemes() {
-  $.getJSON("http://www.reddit.com/r/dankmemes/.json", function (data) {
-    $.each(data.data.children, function (i, item, temp) {
-      if (i != 0 && (item.data.url.includes(".jpg") || item.data.url.includes(".jpeg") || item.data.url.includes(".png"))) {
-        var meme = { link: ""+item.data.url, text: ""+item.data.title };
-        memes.push(meme);
-      }
-    });
+  for (var i = 0; i < subreddits.length; i++) {
+    $.getJSON("http://www.reddit.com/r/" + subreddits[i] + "/.json", function (data) {
+      $.each(data.data.children, function (i, item) {
+        if (i != 0 && (item.data.url.includes(".jpg") || item.data.url.includes(".jpeg") || item.data.url.includes(".png"))) {
+          var meme = { link: "" + item.data.url, text: "" + item.data.title };
+          if (!memes.indexOf(meme) >= 0)
+            memes.push(meme);
+        }
+      });
 
-  });
-
-  $.getJSON("http://www.reddit.com/r/funny/.json", function (data) {
-    $.each(data.data.children, function (i, item, temp) {
-      if (i != 0 && (item.data.url.includes(".jpg") || item.data.url.includes(".jpeg") || item.data.url.includes(".png"))) {
-        var meme = { link: ""+item.data.url, text: ""+item.data.title };
-        memes.push(meme);
-      }
     });
-  });
-
-  $.getJSON("http://www.reddit.com/r/memes/.json", function (data) {
-    $.each(data.data.children, function (i, item, temp) {
-      if (i != 0 && (item.data.url.includes(".jpg") || item.data.url.includes(".jpeg") || item.data.url.includes(".png"))) {
-        var meme = { link: ""+item.data.url, text: ""+item.data.title };
-        memes.push(meme);
-      }
-    });
-  });
-
-  $.getJSON("http://www.reddit.com/r/dank_meme/.json", function (data) {
-    $.each(data.data.children, function (i, item, temp) {
-      if (i != 0 && (item.data.url.includes(".jpg") || item.data.url.includes(".jpeg") || item.data.url.includes(".png"))) {
-        var meme = { link: ""+item.data.url, text: ""+item.data.title };
-        memes.push(meme);
-      }
-    });
-  });
+  }
 }
 
 document.addEventListener('DOMContentLoaded', function () {
   var link = document.getElementById('myButton');
   // onClick's logic below:
   link.addEventListener('click', function () {
+    _gaq.push(['_trackEvent', 'Memes Viewed', 'clicked']);
     getMeme();
   });
 });
 
-// Get the modal
-var modal = document.getElementById("myModal");
+var menuOpen = false;
 
-// Get the image and insert it inside the modal - use its "alt" text as a caption
-var img = document.getElementById("my_image");
-var modalImg = document.getElementById("img01");
-img.onclick = function () {
-  modal.style.display = "block";
-  modalImg.src = this.src;
+function menuClick() {
+
+  //If the menu is already open, close the menu and unhide some UI aspects
+  if (menuOpen) {
+    $("#menu").css("height", "0px");
+    $("#my_image").css("display", "inline-block");
+    $("#menuInfo").css("display", "none");
+
+    $("#myButton").fadeTo(25, 1, function () {
+      // Animation complete.
+    });
+
+    $("#memesLeft").fadeTo(25, 1, function () {
+      // Animation complete.
+    });
+
+    $("#shareButton").fadeTo(25, 1, function () {
+      // Animation complete.
+    });
+
+    $("#menuInfo").empty();
+    menuOpen = false;
+  }
+
+  //Else the menu is not open so open the menu and hide some UI aspects
+  else {
+    $("#my_image").css("display", "none");
+    $("#menu").css("height", "500px");
+
+    $("#myButton").fadeTo(25, 0, function () {
+      // Animation complete.
+    });
+
+    $("#memesLeft").fadeTo(25, 0, function () {
+      // Animation complete.
+    });
+
+    $("#shareButton").fadeTo(25, 0, function () {
+      // Animation complete.
+    });
+
+    setTimeout(function () {
+      $("#menuInfo").css("display", "inline-block");
+    }, 250);
+
+    $("<h1>", {
+      'class': 'menuInfoText'
+    }).append("Your Subreddits:").appendTo("#menuInfo");
+
+    $("<div>", {
+      'class': 'subredditContainer',
+      attr: {
+        id: "list"
+      }
+    }).appendTo("#menuInfo");
+
+    for (var i = 0; i < subreddits.length; i++) {
+      $("<div>", {
+        'class': 'subredditEntry',
+        attr: {
+          id: "subreddit" + i
+        }
+      }).appendTo("#list");
+
+
+      $("<h1>", {
+        'class': 'menuInfoText'
+      }).append("r/" + subreddits[i]).appendTo("#subreddit" + i);
+
+
+      $("<div>", {
+        'class': 'deleteBtn',
+        attr: {
+          id: "delete" + i,
+          onclick: "deleteSubreddit(this.id)"
+        }
+      }).append("x").click(function () {
+
+
+      }).appendTo("#subreddit" + i);
+    }
+
+    $("<h1>", {
+      'class': 'menuInfoText'
+    }).append("Add a Subreddit (excluding the r/)").appendTo("#menuInfo");
+
+    $("<div>", {
+      'class': 'subredditContainer',
+      attr: {
+        id: "list2",
+      }
+    }).appendTo("#menuInfo");
+
+    $("<input>").attr({
+      type: 'text',
+      id: 'input',
+      name: 'Subreddit Name'
+    }).appendTo('#list2');
+
+    $("<div>", {
+      'class': 'submitBtn',
+      onclick: "addSubreddit()"
+
+    }).append("Submit").appendTo("#list2");
+
+
+
+
+
+    menuOpen = true;
+  }
+
+
 }
 
-// Get the <span> element that closes the modal
-var span = document.getElementsByClassName("myclose")[0];
+function addSubreddit() {
+  var input = $("#input").val();
 
-// When the user clicks on <span> (x), close the modal
-span.onclick = function () {
-  modal.style.display = "none";
+  $.getJSON("http://www.reddit.com/r/" + input + "/.json", function (data) {
+
+    var valid = (data.data.dist != 0);
+
+    if (valid) {
+      subreddits.push(input);
+      getMemes();
+      browser.storage.sync.set({ 'subreddits': subreddits }, function () {
+      });
+      browser.storage.sync.set({ 'memes': memes });
+      $("#memesLeft").text(memes.length + " memes left.");
+
+      $("<div>", {
+        'class': 'subredditEntry',
+        attr: {
+          id: "subreddit" + (subreddits.length - 1)
+        }
+      }).appendTo("#list");
+
+
+      $("<h1>", {
+        'class': 'menuInfoText'
+      }).append("r/" + input).appendTo("#subreddit" + (subreddits.length - 1));
+
+
+      $("<div>", {
+        'class': 'deleteBtn',
+        attr: {
+          id: "delete" + (subreddits.length - 1),
+          onclick: "deleteSubreddit(this.id)"
+        }
+      }).append("x").click(function () {
+
+
+      }).appendTo("#subreddit" + (subreddits.length - 1));
+
+      $("#input").text("");
+      /* Alert the copied text */
+      $("#note2").css("line-height", "2.5");
+
+      setTimeout(function () {
+        $("#note2").css("line-height", "0");
+      }, 2000);
+    }
+
+  }).error(function () {
+
+    $("#input").text("");
+    /* Alert the copied text */
+    $("#note3").css("line-height", "2.5");
+
+    setTimeout(function () {
+      $("#note3").css("line-height", "0");
+    }, 2000);
+  });
+
+
+
 }
+
+
+
+
+function deleteSubreddit(id) {
+
+  var index = id.replace("delete", "");
+  subreddits.splice(index, 1);
+  $("#subreddit" + index).remove();
+
+}
+
+
+function copyToClipboard() {
+  var dummy = document.createElement("textarea");
+  document.body.appendChild(dummy);
+  dummy.value = memeURL;
+  dummy.select();
+  document.execCommand("copy");
+  document.body.removeChild(dummy);
+
+  /* Alert the copied text */
+  $("#note").css("line-height", "2.5");
+
+  setTimeout(function () {
+    $("#note").css("line-height", "0");
+  }, 2000);
+
+
+
+}
+
+
+close = document.getElementById("close");
+close.addEventListener('click', function () {
+  note = document.getElementById("note");
+  note.style.display = 'none';
+}, false);
+
+
+
+
+
