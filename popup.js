@@ -158,11 +158,10 @@ function menuClick() {
       $("<div>", {
         'class': 'deleteBtn',
         attr: {
-          id: "delete" + i,
-          onclick: "deleteSubreddit(this.id)"
+          id: "delete" + i
         }
       }).append("x").click(function () {
-
+        deleteSubreddit(this.id);
 
       }).appendTo("#subreddit" + i);
     }
@@ -185,8 +184,9 @@ function menuClick() {
     }).appendTo('#list2');
 
     $("<div>", {
-      'class': 'submitBtn',
-      onclick: "addSubreddit()"
+      'class': 'submitBtn'
+    }).click(function () {
+      addSubreddit();
 
     }).append("Submit").appendTo("#list2");
 
@@ -210,9 +210,9 @@ function addSubreddit() {
     if (valid) {
       subreddits.push(input);
       getMemes();
-      browser.storage.sync.set({ 'subreddits': subreddits }, function () {
+      chrome.storage.sync.set({ 'subreddits': subreddits }, function () {
       });
-      browser.storage.sync.set({ 'memes': memes });
+      chrome.storage.sync.set({ 'memes': memes });
       $("#memesLeft").text(memes.length + " memes left.");
 
       $("<div>", {
@@ -231,12 +231,11 @@ function addSubreddit() {
       $("<div>", {
         'class': 'deleteBtn',
         attr: {
-          id: "delete" + (subreddits.length - 1),
-          onclick: "deleteSubreddit(this.id)"
+          id: "delete" + (subreddits.length - 1)
         }
       }).append("x").click(function () {
 
-
+        deleteSubreddit(this.id)
       }).appendTo("#subreddit" + (subreddits.length - 1));
 
       $("#input").text("");
@@ -284,16 +283,23 @@ function copyToClipboard() {
   document.body.removeChild(dummy);
 
   /* Alert the copied text */
-  $("#note").css("line-height", "2.5");
+  $("#note1").css("line-height", "2.5");
 
   setTimeout(function () {
-    $("#note").css("line-height", "0");
+    $("#note1").css("line-height", "0");
   }, 2000);
 
 
 
 }
 
+$("#menuButton").click(function() {
+    menuClick();
+});
+
+$("#shareButton").click(function() {
+  copyToClipboard();
+});
 
 close = document.getElementById("close");
 close.addEventListener('click', function () {

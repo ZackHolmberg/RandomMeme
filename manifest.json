@@ -1,6 +1,6 @@
 {
       "name": "Random Meme",
-      "version": "1.0",
+      "version": "0.3",
       "manifest_version": 2,
       "description": "View a random meme with the click of a button.",
       "permissions": [
