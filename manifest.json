@@ -1,15 +1,16 @@
 {
-      "name": "Random Meme",
-      "version": "0.3",
-      "manifest_version": 2,
-      "description": "View a random meme with the click of a button.",
-      "permissions": [
-        "storage"
-      ],
-      "browser_action": {
-        "default_icon": "images/icon.png", 
-        "default_popup": "index.html",   
-        "default_title": "Show me a meme!" 
-      },
-      "content_security_policy": "script-src 'self' https://ssl.google-analytics.com; object-src 'self'"
-      }
+  "name": "Random Meme",
+  "version": "0.3.1",
+  "manifest_version": 2,
+  "description": "View a random meme with the click of a button.",
+  "permissions": [
+    "storage",
+    "https://www.reddit.com/"
+  ],
+  "browser_action": {
+    "default_icon": "images/icon.png",
+    "default_popup": "index.html",
+    "default_title": "Random Meme"
+  },
+  "content_security_policy": "script-src 'self' https://ssl.google-analytics.com; object-src 'self'"
+}
