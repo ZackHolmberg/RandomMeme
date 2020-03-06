@@ -130,7 +130,7 @@ h3 {
   text-align: center;
   font-size: 16px;
   padding: 10px;
-  background-color: rgb(60, 60, 60);
+  background-color: rgb(80, 80, 80);
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
   width: 200px;
   transition: 0.25s ease-out;
@@ -153,7 +153,7 @@ h3 {
 }
 
 .button:hover {
-  background-color: rgba(133, 133, 133, 0.363);
+  background-color: rgba(201, 201, 201, 0.363);
 }
 
 .button span {
@@ -215,12 +215,12 @@ button:focus {
   cursor: pointer;
   margin-top: 30px;
   width: 50px;
-  background-color: rgb(60, 60, 60);
+  background-color: rgb(80, 80, 80);
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
 }
 
 .menu-btn:hover {
-  background-color: rgba(133, 133, 133, 0.363);
+  background-color: rgba(201, 201, 201, 0.363);
 }
 
 .menu-btn:active,

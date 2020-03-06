@@ -29,6 +29,8 @@ var subreddits;
 //Array the holds all of the memes.
 var memes;
 
+var alreadyViewedMemes;
+
 //Link of pic being displated
 var memeURL;
 
@@ -44,23 +46,38 @@ const setStorageData = data =>
   );
 
 window.onload = function() {
+
+
+
   chrome.storage.sync.get("subreddits", function(result) {
-    if (result.length) {
-      console.log("subreddits object: ");
-      console.log(result);
-      subreddits = result;
+
+    if (result.subreddits) {
+      console.log(result.subreddits)
+      subreddits = result.subreddits;
     } else {
       console.log("Result empty, initializing subreddits...");
       subreddits = [];
     }
   });
 
+  chrome.storage.sync.get("alreadyViewedMemes", function(result) {
+
+    if (result.alreadyViewedMemes) {
+      console.log(result.alreadyViewedMemes)
+      alreadyViewedMemes = result.alreadyViewedMemes;
+    } else {
+      console.log("Result empty, initializing alreadyViewedMemes...");
+      alreadyViewedMemes = [];
+    }
+  });
+
+
   chrome.storage.sync.get("memes", function(result) {
-    if (result.length) {
-      console.log("memes object: ");
-      console.log(result);
-      console.log(result.length);
-      memes = result;
+
+    if (result.memes) {
+      console.log(result.memes)
+
+      memes = result.memes;
     } else {
       console.log("Result empty, initializing memes...");
       memes = [];
@@ -81,18 +98,19 @@ window.onload = function() {
 };
 
 function getMeme() {
+  console.log("executing getMeme()");
   if (!!memes.length) {
     $("#my_image").attr("src", memes[0]);
     memeURL = memes[0];
+    alreadyViewedMemes.push(memeURL);
     memes.splice(0, 1);
     $("#memesLeft").text(memes.length + " memes left.");
     setStorageData({ memes: memes });
+    setStorageData({ alreadyViewedMemes: alreadyViewedMemes });
+
   } else {
     noMemes = true;
     $("#my_image").attr("src", "images/noneAvailable.webp");
-    $("#caption").text(
-      "No memes avaiable. Either you have browsed all the top memes of your selected subreddits, you have no selected subreddits in the menu, or you are not connected to the internet."
-    );
   }
   if (!!memes.length) {
     $("#myButton").removeClass("button_disabled");
@@ -104,6 +122,7 @@ function getMeme() {
 }
 
 function getMemes() {
+  console.log("executing getMemes()");
   for (var i = 0; i < subreddits.length; i++) {
     $.getJSON("https://www.reddit.com/r/" + subreddits[i] + ".json", function(
       data
@@ -115,16 +134,24 @@ function getMemes() {
             item.data.url.includes(".jpeg") ||
             item.data.url.includes(".png"))
         ) {
-          var meme = item.data.url;
-          if (!memes.indexOf(meme) > -1) {
-            console.log(meme);
+          var meme = ""+item.data.url;
+          console.log("memes before: ");
+          console.log(memes);
+          console.log(" comparing: "+meme)
+          if (!memes.includes(meme) && !alreadyViewedMemes.includes(meme)) {
+            console.log("adding: "+meme);
             memes.push(meme);
-            setStorageData({ memes: memes });
+            console.log("memes after: ");
+            console.log(memes);
+
           }
         }
       });
     });
   }
+
+  setStorageData({ memes: memes });
+
 }
 
 document.addEventListener("DOMContentLoaded", function() {
@@ -147,26 +174,18 @@ function menuClick() {
 
     if (!!memes.length) {
       console.log("fading back to full");
-      $("#myButton").fadeTo(25, 1, function() {
-        //not fading back properly
-        // Animation complete.
-      });
+      $("#myButton").fadeTo(25, 1);
     } else {
       console.log("fading back to half");
-      $("#myButton").fadeTo(25, 0.5, function() {
-        // Animation complete.
-      });
+      $("#myButton").fadeTo(25, 0.5);
     }
 
-    $("#memesLeft").fadeTo(25, 1, function() {
-      // Animation complete.
-    });
+    $("#memesLeft").fadeTo(25, 1);
 
-    $("#shareButton").fadeTo(25, 1, function() {
-      // Animation complete.
-    });
+    $("#shareButton").fadeTo(25, 1);
 
     $("#menuInfo").empty();
+
     menuOpen = false;
 
     if(noMemes && !!memes.length) { getMeme(); noMemes = false; }
@@ -177,17 +196,11 @@ function menuClick() {
     $("#my_image").css("display", "none");
     $("#menu").css("height", "auto");
 
-    $("#myButton").fadeTo(25, 0, function() {
-      // Animation complete.
-    });
+    $("#myButton").fadeTo(25, 0);
 
-    $("#memesLeft").fadeTo(25, 0, function() {
-      // Animation complete.
-    });
+    $("#memesLeft").fadeTo(25, 0);
 
-    $("#shareButton").fadeTo(25, 0, function() {
-      // Animation complete.
-    });
+    $("#shareButton").fadeTo(25, 0);
 
     setTimeout(function() {
       $("#menuInfo").css("display", "inline-block");
@@ -289,11 +302,11 @@ function addSubreddit() {
 
   $.getJSON("https://www.reddit.com/r/" + input + ".json", function() {
     console.log("checking if valid...");
-    $("#noSubreddits").remove(); //add this back if all subreddits are deleted
+    $("#noSubreddits").remove(); //TODO: add this back if all subreddits are deleted
 
     subreddits.push(input);
-    getMemes();
     setStorageData({ subreddits: subreddits });
+    getMemes();
     setStorageData({ memes: memes });
 
     $("#memesLeft").text(memes.length + " memes left.");
@@ -381,3 +394,34 @@ close.addEventListener(
   },
   false
 );
+
+// checks if one day has passed. 
+function hasOneDayPassed() { 
+  // get today's date. eg: "7/37/2007"
+  var date = new Date().toLocaleDateString();
+  
+  chrome.storage.sync.get("dateOfLastCacheClear", function(result) {
+
+    if (!!result.dateOfLastCacheClear && result.dateOfLastCacheClear != date ) {
+      setStorageData({ dateOfLastCacheClear: date });
+      return true;
+    } 
+    
+  });
+
+  return false;
+
+}
+
+
+//clear the already viewed meme cache once per day.
+function clearViewedMemesCacheOnceADay(){
+  if( !hasOneDayPassed() ) return false;
+
+  // your code below
+  setStorageData({ alreadyViewedMemes: [] });
+
+}
+
+clearViewedMemesCacheOnceADay();
+
