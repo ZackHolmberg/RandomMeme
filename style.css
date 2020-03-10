@@ -347,6 +347,12 @@ button:focus {
   transition: 0.25s ease-out;
 }
 
+.noSubreddits{
+  margin-top: 5%;
+  margin-bottom: 5%;
+  margin-left: 100px;
+}
+
 .subredditEntry h1 {
   position: absolute;
   left: 40px;

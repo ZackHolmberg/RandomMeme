@@ -46,13 +46,9 @@ const setStorageData = data =>
   );
 
 window.onload = function() {
-
-
-
   chrome.storage.sync.get("subreddits", function(result) {
-
     if (result.subreddits) {
-      console.log(result.subreddits)
+      console.log(result.subreddits);
       subreddits = result.subreddits;
     } else {
       console.log("Result empty, initializing subreddits...");
@@ -61,9 +57,8 @@ window.onload = function() {
   });
 
   chrome.storage.sync.get("alreadyViewedMemes", function(result) {
-
     if (result.alreadyViewedMemes) {
-      console.log(result.alreadyViewedMemes)
+      console.log(result.alreadyViewedMemes);
       alreadyViewedMemes = result.alreadyViewedMemes;
     } else {
       console.log("Result empty, initializing alreadyViewedMemes...");
@@ -71,11 +66,9 @@ window.onload = function() {
     }
   });
 
-
   chrome.storage.sync.get("memes", function(result) {
-
     if (result.memes) {
-      console.log(result.memes)
+      console.log(result.memes);
 
       memes = result.memes;
     } else {
@@ -107,7 +100,6 @@ function getMeme() {
     $("#memesLeft").text(memes.length + " memes left.");
     setStorageData({ memes: memes });
     setStorageData({ alreadyViewedMemes: alreadyViewedMemes });
-
   } else {
     noMemes = true;
     $("#my_image").attr("src", "images/noneAvailable.webp");
@@ -134,16 +126,15 @@ function getMemes() {
             item.data.url.includes(".jpeg") ||
             item.data.url.includes(".png"))
         ) {
-          var meme = ""+item.data.url;
+          var meme = "" + item.data.url;
           console.log("memes before: ");
           console.log(memes);
-          console.log(" comparing: "+meme)
+          console.log(" comparing: " + meme);
           if (!memes.includes(meme) && !alreadyViewedMemes.includes(meme)) {
-            console.log("adding: "+meme);
+            console.log("adding: " + meme);
             memes.push(meme);
             console.log("memes after: ");
             console.log(memes);
-
           }
         }
       });
@@ -151,7 +142,6 @@ function getMemes() {
   }
 
   setStorageData({ memes: memes });
-
 }
 
 document.addEventListener("DOMContentLoaded", function() {
@@ -188,7 +178,10 @@ function menuClick() {
 
     menuOpen = false;
 
-    if(noMemes && !!memes.length) { getMeme(); noMemes = false; }
+    if (noMemes && !!memes.length) {
+      getMeme();
+      noMemes = false;
+    }
   }
 
   //Else the menu is not open so open the menu and hide some UI aspects
@@ -248,7 +241,7 @@ function menuClick() {
       }
     } else {
       $("<div>", {
-        class: "subredditEntry",
+        class: "subredditEntry noSubreddits",
         attr: {
           id: "noSubreddits"
         }
@@ -312,11 +305,10 @@ function addSubreddit() {
     $("#memesLeft").text(memes.length + " memes left.");
 
     $("<div>", {
-      class: "subredditEntry",
       attr: {
         id: "subreddit" + (subreddits.length - 1)
       }
-    }).appendTo("#list");
+    }).addClass('subredditEntry').appendTo("#list");
 
     $("<h1>", {
       class: "menuInfoText"
@@ -359,6 +351,7 @@ function deleteSubreddit(id) {
   subreddits.splice(index, 1);
   $("#subreddit" + index).remove();
   setStorageData({ subreddits: subreddits });
+  checkNoMoreSubreddits();
 }
 
 function copyToClipboard() {
@@ -395,33 +388,43 @@ close.addEventListener(
   false
 );
 
-// checks if one day has passed. 
-function hasOneDayPassed() { 
+// checks if one day has passed.
+function hasOneDayPassed() {
   // get today's date. eg: "7/37/2007"
   var date = new Date().toLocaleDateString();
-  
-  chrome.storage.sync.get("dateOfLastCacheClear", function(result) {
 
-    if (!!result.dateOfLastCacheClear && result.dateOfLastCacheClear != date ) {
+  chrome.storage.sync.get("dateOfLastCacheClear", function(result) {
+    if (!!result.dateOfLastCacheClear && result.dateOfLastCacheClear != date) {
       setStorageData({ dateOfLastCacheClear: date });
       return true;
-    } 
-    
+    }
   });
 
   return false;
-
 }
 
-
 //clear the already viewed meme cache once per day.
-function clearViewedMemesCacheOnceADay(){
-  if( !hasOneDayPassed() ) return false;
+function clearViewedMemesCacheOnceADay() {
+  if (!hasOneDayPassed()) return false;
 
   // your code below
   setStorageData({ alreadyViewedMemes: [] });
+}
 
+function checkNoMoreSubreddits() {
+  if (subreddits.length == 0) {
+    $("<div>", {
+      attr: {
+        id: "noSubreddits"
+      }
+    }).addClass('subredditEntry noSubreddits').appendTo("#list");
+
+    $("<h1>", {
+      class: "menuInfoText"
+    })
+      .append("No Subreddits")
+      .appendTo("#noSubreddits");
+  }
 }
 
 clearViewedMemesCacheOnceADay();
-
