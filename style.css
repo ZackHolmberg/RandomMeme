@@ -406,3 +406,34 @@ button:focus {
 .submitBtn:hover {
   background: rgba(190, 190, 190, 0.678);
 }
+
+.tipBubble {
+	position: absolute;
+	background: rgb(88, 88, 88);
+  border-radius: .4em;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+  transform: scale(0.5);
+  display: inline-block;
+  z-index: 999;
+  left: -27px;
+  top: -37px;
+  border-radius: 25px;
+  padding: 20px;
+  height: 175px;
+  display: none;
+}
+
+.tipBubble:after {
+	content: '';
+	position: absolute;
+	left: 0;
+	top: 50%;
+	width: 0;
+	height: 0;
+	border: 32px solid transparent;
+	border-right-color: rgb(88, 88, 88);
+	border-left: 0;
+	border-bottom: 0;
+	margin-top: -16px;
+	margin-left: -32px;
+}

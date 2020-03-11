@@ -1,7 +1,9 @@
-$.ajaxSetup({ async: false });
+$.ajaxSetup({
+  async: false
+});
 
 //Google Analytics Stuff
-(function() {
+(function () {
   var ga = document.createElement("script");
   ga.type = "text/javascript";
   ga.async = true;
@@ -14,7 +16,7 @@ var _gaq = _gaq || [];
 _gaq.push(["_setAccount", "UA-148351255-1"]);
 _gaq.push(["_trackPageview"]);
 
-(function() {
+(function () {
   var ga = document.createElement("script");
   ga.type = "text/javascript";
   ga.async = true;
@@ -39,45 +41,42 @@ var noMemes;
 const setStorageData = data =>
   new Promise((resolve, reject) =>
     chrome.storage.sync.set(data, () =>
-      chrome.runtime.lastError
-        ? reject(Error(chrome.runtime.lastError.message))
-        : resolve()
+      chrome.runtime.lastError ?
+      reject(Error(chrome.runtime.lastError.message)) :
+      resolve()
     )
   );
 
-window.onload = function() {
-  chrome.storage.sync.get("subreddits", function(result) {
+window.onload = function () {
+  chrome.storage.sync.get("subreddits", function (result) {
     if (result.subreddits) {
-      console.log(result.subreddits);
       subreddits = result.subreddits;
     } else {
-      console.log("Result empty, initializing subreddits...");
       subreddits = [];
+      noSubsOrMemes = true;
     }
   });
 
-  chrome.storage.sync.get("alreadyViewedMemes", function(result) {
+  chrome.storage.sync.get("alreadyViewedMemes", function (result) {
     if (result.alreadyViewedMemes) {
-      console.log(result.alreadyViewedMemes);
       alreadyViewedMemes = result.alreadyViewedMemes;
     } else {
-      console.log("Result empty, initializing alreadyViewedMemes...");
       alreadyViewedMemes = [];
+
     }
   });
 
-  chrome.storage.sync.get("memes", function(result) {
+  chrome.storage.sync.get("memes", function (result) {
     if (result.memes) {
-      console.log(result.memes);
 
       memes = result.memes;
     } else {
-      console.log("Result empty, initializing memes...");
       memes = [];
     }
 
     getMemes();
     getMeme();
+
 
     //Disable the next meme button if there are no memes.
     if (!!memes.length) {
@@ -87,22 +86,33 @@ window.onload = function() {
       $("#myButton").removeClass("button");
       $("#myButton").addClass("button_disabled");
     }
+    checkIfShouldDisplayBubbleTip();
   });
+
+
 };
 
+function checkIfShouldDisplayBubbleTip() {
+  if(!memes.length && !subreddits.length) { $("#noMemesBubble").show(); }
+}
+
 function getMeme() {
-  console.log("executing getMeme()");
   if (!!memes.length) {
+    $("#noMemesBubble").hide();
     $("#my_image").attr("src", memes[0]);
     memeURL = memes[0];
     alreadyViewedMemes.push(memeURL);
     memes.splice(0, 1);
     $("#memesLeft").text(memes.length + " memes left.");
-    setStorageData({ memes: memes });
-    setStorageData({ alreadyViewedMemes: alreadyViewedMemes });
+    setStorageData({
+      memes: memes
+    });
+    setStorageData({
+      alreadyViewedMemes: alreadyViewedMemes
+    });
   } else {
     noMemes = true;
-    $("#my_image").attr("src", "images/noneAvailable.webp");
+    $("#my_image").attr("src", "images/noMemes.jpeg");
   }
   if (!!memes.length) {
     $("#myButton").removeClass("button_disabled");
@@ -114,12 +124,11 @@ function getMeme() {
 }
 
 function getMemes() {
-  console.log("executing getMemes()");
   for (var i = 0; i < subreddits.length; i++) {
-    $.getJSON("https://www.reddit.com/r/" + subreddits[i] + ".json", function(
+    $.getJSON("https://www.reddit.com/r/" + subreddits[i] + ".json", function (
       data
     ) {
-      $.each(data.data.children, function(i, item) {
+      $.each(data.data.children, function (i, item) {
         if (
           i != 0 &&
           (item.data.url.includes(".jpg") ||
@@ -127,27 +136,23 @@ function getMemes() {
             item.data.url.includes(".png"))
         ) {
           var meme = "" + item.data.url;
-          console.log("memes before: ");
-          console.log(memes);
-          console.log(" comparing: " + meme);
           if (!memes.includes(meme) && !alreadyViewedMemes.includes(meme)) {
-            console.log("adding: " + meme);
             memes.push(meme);
-            console.log("memes after: ");
-            console.log(memes);
           }
         }
       });
     });
   }
 
-  setStorageData({ memes: memes });
+  setStorageData({
+    memes: memes
+  });
 }
 
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function () {
   var link = document.getElementById("myButton");
   // onClick's logic below:
-  link.addEventListener("click", function() {
+  link.addEventListener("click", function () {
     _gaq.push(["_trackEvent", "Memes Viewed", "clicked"]);
     getMeme();
   });
@@ -163,10 +168,8 @@ function menuClick() {
     $("#menuInfo").css("display", "none");
 
     if (!!memes.length) {
-      console.log("fading back to full");
       $("#myButton").fadeTo(25, 1);
     } else {
-      console.log("fading back to half");
       $("#myButton").fadeTo(25, 0.5);
     }
 
@@ -182,10 +185,14 @@ function menuClick() {
       getMeme();
       noMemes = false;
     }
+
+    checkIfShouldDisplayBubbleTip();
+
   }
 
   //Else the menu is not open so open the menu and hide some UI aspects
   else {
+    $("#noMemesBubble").hide();
     $("#my_image").css("display", "none");
     $("#menu").css("height", "auto");
 
@@ -195,13 +202,13 @@ function menuClick() {
 
     $("#shareButton").fadeTo(25, 0);
 
-    setTimeout(function() {
+    setTimeout(function () {
       $("#menuInfo").css("display", "inline-block");
     }, 250);
 
     $("<h1>", {
-      class: "menuInfoText"
-    })
+        class: "menuInfoText"
+      })
       .append("Your Subreddits:")
       .appendTo("#menuInfo");
 
@@ -222,19 +229,19 @@ function menuClick() {
         }).appendTo("#list");
 
         $("<h1>", {
-          class: "menuInfoText"
-        })
+            class: "menuInfoText"
+          })
           .append("r/" + subreddits[i])
           .appendTo("#subreddit" + i);
 
         $("<div>", {
-          class: "deleteBtn",
-          attr: {
-            id: "delete" + i
-          }
-        })
+            class: "deleteBtn",
+            attr: {
+              id: "delete" + i
+            }
+          })
           .append("x")
-          .click(function() {
+          .click(function () {
             deleteSubreddit(this.id);
           })
           .appendTo("#subreddit" + i);
@@ -248,15 +255,15 @@ function menuClick() {
       }).appendTo("#list");
 
       $("<h1>", {
-        class: "menuInfoText"
-      })
+          class: "menuInfoText"
+        })
         .append("No Subreddits")
         .appendTo("#noSubreddits");
     }
 
     $("<h1>", {
-      class: "menuInfoText"
-    })
+        class: "menuInfoText"
+      })
       .append("Add a Subreddit (excluding the r/)")
       .appendTo("#menuInfo");
 
@@ -276,10 +283,9 @@ function menuClick() {
       .appendTo("#list2");
 
     $("<div>", {
-      class: "submitBtn"
-    })
-      .click(function() {
-        console.log("clicking button");
+        class: "submitBtn"
+      })
+      .click(function () {
         addSubreddit();
       })
       .append("Submit")
@@ -291,16 +297,17 @@ function menuClick() {
 
 function addSubreddit() {
   var input = $("#input").val();
-  console.log("got input: " + input);
-
-  $.getJSON("https://www.reddit.com/r/" + input + ".json", function() {
-    console.log("checking if valid...");
-    $("#noSubreddits").remove(); //TODO: add this back if all subreddits are deleted
-
+  $.getJSON("https://www.reddit.com/r/" + input + ".json", function () {
+    $("#noSubreddits").remove();
+    $("#noMemesBubble").hide();
     subreddits.push(input);
-    setStorageData({ subreddits: subreddits });
+    setStorageData({
+      subreddits: subreddits
+    });
     getMemes();
-    setStorageData({ memes: memes });
+    setStorageData({
+      memes: memes
+    });
 
     $("#memesLeft").text(memes.length + " memes left.");
 
@@ -311,19 +318,19 @@ function addSubreddit() {
     }).addClass('subredditEntry').appendTo("#list");
 
     $("<h1>", {
-      class: "menuInfoText"
-    })
+        class: "menuInfoText"
+      })
       .append("r/" + input)
       .appendTo("#subreddit" + (subreddits.length - 1));
 
     $("<div>", {
-      class: "deleteBtn",
-      attr: {
-        id: "delete" + (subreddits.length - 1)
-      }
-    })
+        class: "deleteBtn",
+        attr: {
+          id: "delete" + (subreddits.length - 1)
+        }
+      })
       .append("x")
-      .click(function() {
+      .click(function () {
         deleteSubreddit(this.id);
       })
       .appendTo("#subreddit" + (subreddits.length - 1));
@@ -332,15 +339,15 @@ function addSubreddit() {
     /* Alert the copied text */
     $("#note2").css("line-height", "2.5");
 
-    setTimeout(function() {
+    setTimeout(function () {
       $("#note2").css("line-height", "0");
     }, 2000);
-  }).error(function() {
+  }).error(function () {
     $("#input").text("");
     /* Alert the copied text */
     $("#note3").css("line-height", "2.5");
 
-    setTimeout(function() {
+    setTimeout(function () {
       $("#note3").css("line-height", "0");
     }, 2000);
   });
@@ -350,38 +357,40 @@ function deleteSubreddit(id) {
   var index = id.replace("delete", "");
   subreddits.splice(index, 1);
   $("#subreddit" + index).remove();
-  setStorageData({ subreddits: subreddits });
+  setStorageData({
+    subreddits: subreddits
+  });
   checkNoMoreSubreddits();
 }
 
 function copyToClipboard() {
-  var dummy = document.createElement("textarea");
-  document.body.appendChild(dummy);
-  dummy.value = memeURL;
-  dummy.select();
+  var text = document.createElement("textarea");
+  document.body.appendChild(text);
+  text.value = memeURL;
+  text.select();
   document.execCommand("copy");
-  document.body.removeChild(dummy);
+  document.body.removeChild(text);
 
   /* Alert the copied text */
   $("#note1").css("line-height", "2.5");
 
-  setTimeout(function() {
+  setTimeout(function () {
     $("#note1").css("line-height", "0");
   }, 2000);
 }
 
-$("#menuButton").click(function() {
+$("#menuButton").click(function () {
   menuClick();
 });
 
-$("#shareButton").click(function() {
+$("#shareButton").click(function () {
   copyToClipboard();
 });
 
 close = document.getElementById("close");
 close.addEventListener(
   "click",
-  function() {
+  function () {
     note = document.getElementById("note");
     note.style.display = "none";
   },
@@ -393,9 +402,11 @@ function hasOneDayPassed() {
   // get today's date. eg: "7/37/2007"
   var date = new Date().toLocaleDateString();
 
-  chrome.storage.sync.get("dateOfLastCacheClear", function(result) {
+  chrome.storage.sync.get("dateOfLastCacheClear", function (result) {
     if (!!result.dateOfLastCacheClear && result.dateOfLastCacheClear != date) {
-      setStorageData({ dateOfLastCacheClear: date });
+      setStorageData({
+        dateOfLastCacheClear: date
+      });
       return true;
     }
   });
@@ -408,7 +419,9 @@ function clearViewedMemesCacheOnceADay() {
   if (!hasOneDayPassed()) return false;
 
   // your code below
-  setStorageData({ alreadyViewedMemes: [] });
+  setStorageData({
+    alreadyViewedMemes: []
+  });
 }
 
 function checkNoMoreSubreddits() {
@@ -420,8 +433,8 @@ function checkNoMoreSubreddits() {
     }).addClass('subredditEntry noSubreddits').appendTo("#list");
 
     $("<h1>", {
-      class: "menuInfoText"
-    })
+        class: "menuInfoText"
+      })
       .append("No Subreddits")
       .appendTo("#noSubreddits");
   }
