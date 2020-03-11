@@ -12,5 +12,11 @@
     "default_popup": "index.html",
     "default_title": "Random Meme"
   },
+"icons": {
+      "16": "images/logo.png",
+      "32": "images/logo.png",
+      "48": "images/logo.png",
+      "128": "images/logo.png"
+},
   "content_security_policy": "script-src 'self' https://ssl.google-analytics.com; object-src 'self'"
 }
